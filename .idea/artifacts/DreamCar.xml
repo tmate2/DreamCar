@@ -1,0 +1,13 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="DreamCar">
+    <output-path>$PROJECT_DIR$/out/artifacts/DreamCar</output-path>
+    <root id="archive" name="DreamCar.war">
+      <element id="directory" name="WEB-INF">
+        <element id="directory" name="classes">
+          <element id="module-output" name="DreamCar" />
+        </element>
+      </element>
+      <element id="javaee-facet-resources" facet="DreamCar/web/Web" />
+    </root>
+  </artifact>
+</component>
