@@ -1,7 +1,6 @@
 package dreamcar.startup;
 
 import dreamcar.dbmanagement.UserTableManager;
-import dreamcar.startup.connection.ConnectionFailedException;
 import dreamcar.startup.connection.MySqlConnection;
 import dreamcar.dbmanagement.tables.User;
 import jakarta.servlet.ServletContextEvent;
@@ -13,13 +12,10 @@ public class StartUp implements ServletContextListener {
     private boolean connectionFailed = false;
 
     private void connectionCheck() {
-        try {
-            MySqlConnection.connectToServer();
-        } catch (ConnectionFailedException e) {
-            connectionFailed = true;
-            throw new RuntimeException(e);
-            //TODO: leállítani a futást
-        }
+        MySqlConnection.connectToServer();
+
+        connectionFailed = (MySqlConnection.getConnection() == null);
+        //TODO: leállítani a futást
     }
 
     @Override

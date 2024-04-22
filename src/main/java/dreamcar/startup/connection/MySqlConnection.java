@@ -1,5 +1,7 @@
 package dreamcar.startup.connection;
 
+import com.mysql.cj.jdbc.Driver;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -16,11 +18,11 @@ public class MySqlConnection {
     private static String mysqlPort;
     private static String database;
 
-    private static Connection connection = null;
+    private static Connection connection;
 
-    public static void connectToServer() throws ConnectionFailedException {
+    public static void connectToServer() {
         try {
-            File config = new File("../webapps/DreamCar-1.0/WEB-INF/properties");
+            File config = new File("../webapps/DreamCar-1.0/WEB-INF/properties.conf");
 
             if (config.exists() && config.canRead()) {
                 Properties properties = new Properties();
@@ -33,9 +35,6 @@ public class MySqlConnection {
             }
 
             Class.forName("com.mysql.jdbc.Driver");
-
-            System.out.println("######################################################"+database);
-
             connection = DriverManager.getConnection(
                     String.format("jdbc:mysql://%s:%s/%s", mysqlIp, mysqlPort, database )
                     , username
@@ -43,12 +42,9 @@ public class MySqlConnection {
             );
 
         } catch (RuntimeException | IOException | SQLException | ClassNotFoundException e) {
-            throw new ConnectionFailedException();
+            System.out.println("connectToServer:\n"+e);
         }
 
-        if (connection == null){
-            throw new ConnectionFailedException();
-        }
     }
 
     public static Connection getConnection() {
@@ -59,7 +55,7 @@ public class MySqlConnection {
         try {
             connection.close();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            System.out.println("terminateConnection:\n"+e);
         }
     }
 
