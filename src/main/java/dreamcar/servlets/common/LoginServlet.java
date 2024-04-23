@@ -4,7 +4,6 @@ import dreamcar.dbmanagement.UserTableManager;
 import dreamcar.dbmanagement.tables.User;
 import dreamcar.servlets.ResponseComponents;
 import dreamcar.startup.connection.MySqlConnection;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -28,12 +27,6 @@ public class LoginServlet extends HttpServlet {
         return credentials.containsKey(username) && credentials.get(username).equals(password);
     }
 
-    @Override
-    public void init() throws ServletException {
-        //TODO
-    }
-
-    //TODO: Átírni az index.html átírányítását, hogy ne használjon GET-et...
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         doPost(request, response);
     }
@@ -62,8 +55,4 @@ public class LoginServlet extends HttpServlet {
         writer.close();
     }
 
-    @Override
-    public void destroy() {
-        //TODO
-    }
 }
