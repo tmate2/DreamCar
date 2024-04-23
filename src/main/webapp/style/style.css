@@ -1,6 +1,7 @@
 body {
     background-image: url("../imgs/bg.jpg");
     background-position: center;
+    font-size: 2vh;
 }
 
 #header {
@@ -35,10 +36,6 @@ h2 {
 
 h6 {
     font-size: 1.5vh;
-}
-
-p {
-    font-size: 2vh;
 }
 
 #footer-text {

@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="DreamCar:war WIN">
+    <output-path>$PROJECT_DIR$/out/artifacts/DreamCar_war_WIN</output-path>
+    <root id="archive" name="DreamCar_war WIN.war">
+      <element id="artifact" artifact-name="DreamCar:war exploded WIN" />
+    </root>
+  </artifact>
+</component>
