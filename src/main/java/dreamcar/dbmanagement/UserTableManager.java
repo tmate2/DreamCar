@@ -41,6 +41,7 @@ public class UserTableManager extends DatabaseManager {
             PreparedStatement pst = super.connection.prepareStatement(sqlQuery);
             pst.setBoolean(1, !user.isAdmin());
             pst.setString(2, user.username());
+            pst.execute();
         } catch (SQLException e) {
             System.out.println("changeAdminStatus:\n"+e);
         }
@@ -50,8 +51,9 @@ public class UserTableManager extends DatabaseManager {
         String sqlQuery = String.format(UPDATE_QUERY, TABLE, "is_active", "username");
         try {
             PreparedStatement pst = super.connection.prepareStatement(sqlQuery);
-            pst.setBoolean(1, !user.isAdmin());
+            pst.setBoolean(1, !user.isActive());
             pst.setString(2, user.username());
+            pst.execute();
         } catch (SQLException e) {
             System.out.println("changeActivityStatus:\n"+e);
         }
@@ -63,6 +65,7 @@ public class UserTableManager extends DatabaseManager {
             PreparedStatement pst = super.connection.prepareStatement(sqlQuery);
             pst.setString(1, newPassword);
             pst.setString(2, user.username());
+            pst.execute();
         } catch (SQLException e) {
             System.out.println("changePassword:\n"+e);
         }
@@ -118,6 +121,12 @@ public class UserTableManager extends DatabaseManager {
         return getUsers().stream()
                 .filter(user -> user.isAdmin() && user.isActive())
                 .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    public User getUserByUsername(String username) {
+        return getUsers().stream()
+                .filter(u -> u.username().equals(username))
+                .findFirst().get();
     }
 
 }

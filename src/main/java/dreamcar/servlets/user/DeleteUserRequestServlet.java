@@ -41,10 +41,7 @@ public class DeleteUserRequestServlet extends HttpServlet {
 
     private boolean checkPassword(String username, String password) {
         UserTableManager utm = new UserTableManager(MySqlConnection.getConnection());
-        return utm.getUsers().stream()
-                .filter(user -> user.username().equals(username))
-                .findFirst().get()
-                .password().equals(password);
+        return utm.getUserByUsername(username).password().equals(password);
     }
 
     @Override
@@ -58,15 +55,18 @@ public class DeleteUserRequestServlet extends HttpServlet {
         String password = Optional.ofNullable(request.getParameter("password")).orElse("");
         try {
             String username = (String) request.getSession().getAttribute("user");
-            if (username == null) {
-                response.sendRedirect(request.getRequestURI().replace("/deleteuser", "/login"));
+            if (username.isEmpty()) {
+                response.sendRedirect("login");
+            } else if (!ResponseComponents.checkUserInHeader(request)) {
+                response.sendRedirect("login");
             }
             String hidden = "hidden";
             if (!password.isEmpty()) {
                 hidden = "";
                 String hashedPassword = DigestUtils.sha256Hex(password);
                 if (checkPassword(username, hashedPassword)) {
-                    //TODO Törlési kérelem küldése adminnak
+                    UserTableManager utm = new UserTableManager(MySqlConnection.getConnection());
+                    utm.changeActivityStatus(utm.getUserByUsername(username));
                     request.getSession().invalidate();
                     response.sendRedirect(request.getRequestURI().replace("/deleteuser", "/"));
                 }

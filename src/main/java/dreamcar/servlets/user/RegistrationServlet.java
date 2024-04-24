@@ -52,11 +52,6 @@ public class RegistrationServlet extends HttpServlet {
                 """;
 
     @Override
-    public void init() throws ServletException {
-        //TODO
-    }
-
-    @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
         doPost(req, resp);
     }
@@ -70,14 +65,14 @@ public class RegistrationServlet extends HttpServlet {
         UserTableManager utm = new UserTableManager(MySqlConnection.getConnection());
         return utm.getUsers().stream()
                 .map(User::username)
-                .anyMatch(hashedUsername::equalsIgnoreCase);
+                .anyMatch(hashedUsername::equals);
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) {
         try {
             if (ResponseComponents.checkUserInHeader(request)) {
-                response.sendRedirect(request.getRequestURI().replace("/registration", "/home"));
+                response.sendRedirect("home");
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -116,7 +111,7 @@ public class RegistrationServlet extends HttpServlet {
                 String hashedUsername = DigestUtils.sha256Hex(username);
                 String hashedPassword = DigestUtils.sha256Hex(password1);
                 utm.addUser(new User(hashedUsername, hashedPassword, false, fullname, true));
-                response.sendRedirect(request.getRequestURI().replace("/registration", "/login"));
+                response.sendRedirect("login");
             }
             writer.println(String.format(LOGIN_FORM, reservedUsername, badUsername, differentPasswords, emptyFields));
             writer.println(ResponseComponents.getFooter());
@@ -125,11 +120,6 @@ public class RegistrationServlet extends HttpServlet {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    @Override
-    public void destroy() {
-        super.destroy();
     }
 
 }

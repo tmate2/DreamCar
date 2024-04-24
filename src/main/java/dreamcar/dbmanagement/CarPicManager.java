@@ -37,6 +37,7 @@ public class CarPicManager extends DatabaseManager {
             PreparedStatement pst = super.connection.prepareStatement(sqlQuery);
             pst.setString(1, newImgName);
             pst.setString(2, carPic.id());
+            pst.execute();
         } catch (SQLException e) {
             System.out.println(""+e);
         }

@@ -39,7 +39,7 @@ public class HomeServlet extends HttpServlet {
                                 %s
                             </button>
                             <ul class="dropdown-menu" style="font-size: 1.5vh;">
-                                <li><input type="button" class="dropdown-item" value="Jelszó változtatás" onclick="changePassword()"></li>
+                                <li><input type="button" class="dropdown-item" value="Jelszó változtatás" onclick="location.href = 'changepassword'"></li>
                                 <li><input type="button" class="dropdown-item text-danger" value="Fiók törlése" onclick="deleteRequest()"></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><input type="button" class="dropdown-item" value="Kijelentkezés" onclick="location.href = 'logout'"></li>
@@ -64,7 +64,6 @@ public class HomeServlet extends HttpServlet {
                             </table>
                         </div>
                     </div>
-                    <script src="js/userControl.js"></script>
                     <script src="js/userControl.js"></script>
             """;
 
@@ -124,8 +123,10 @@ public class HomeServlet extends HttpServlet {
 
         try {
             String username = (String) request.getSession().getAttribute("user");
-            if (username == null) {
-                response.sendRedirect(request.getRequestURI().replace("/home", "/login"));
+            if (username.isEmpty()) {
+                response.sendRedirect("login");
+            } else if (!ResponseComponents.checkUserInHeader(request)) {
+                response.sendRedirect("login");
             }
 
             PrintWriter writer = response.getWriter();

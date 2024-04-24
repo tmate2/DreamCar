@@ -4,7 +4,7 @@
     <deployment>
       <artifact name="DreamCar:war">
         <settings>
-          <option name="CONTEXT_PATH" value="/DreamCar_war" />
+          <option name="CONTEXT_PATH" value="/DreamCar-1.0" />
         </settings>
       </artifact>
     </deployment>

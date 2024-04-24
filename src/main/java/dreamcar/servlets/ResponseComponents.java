@@ -23,7 +23,7 @@ public class ResponseComponents {
                 <link rel="stylesheet" href="style/style.css">
             </head>
             <body>
-                <div id="container" class="container d-flex flex-column m-auto vh-100 p-0 text-center justify-content-between">
+                <div id="container" class="container d-flex flex-column m-auto vh-100 h-100 p-0 text-center justify-content-between">
             """;
 
     private static final String LOGIN = """
@@ -50,7 +50,7 @@ public class ResponseComponents {
     private static final String FOOTER = """
                     <div id="footer-text" class="d-flex justify-content-between p-3 bg-dark text-light">
                         <div class="col-md-3">Semmilyen jog sincs fenntartva.</div>
-                        <div class="col-md-2"><a onclick="location.href = 'admin/login'" style="text-decoration: none; color: white; cursor: pointer;">Admin</a></div>
+                        <div class="col-md-2"><a onclick="location.href = 'adminlogin'" style="text-decoration: none; color: white; cursor: pointer;">Admin</a></div>
                     </div>
                 </div>
             </body>
@@ -72,12 +72,12 @@ public class ResponseComponents {
     }
 
     public static boolean checkUserInHeader(HttpServletRequest request) {
-        String user = Optional.ofNullable(request.getParameter("user")).orElse("");
+        String user = Optional.ofNullable((String) request.getSession().getAttribute("user")).orElse("");
         UserTableManager utm = new UserTableManager(MySqlConnection.getConnection());
-        Map<String, String> credentials = utm.getUsers().stream()
+        return utm.getUsers().stream()
                 .filter(User::isActive)
-                .collect(Collectors.toMap(User::username, User::password));
-        return credentials.containsKey(user);
+                .map(User::username)
+                .anyMatch(user::equals);
     }
 
 

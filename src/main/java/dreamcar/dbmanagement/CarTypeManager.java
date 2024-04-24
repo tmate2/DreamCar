@@ -27,6 +27,7 @@ public class CarTypeManager extends DatabaseManager {
             pst.setString(1, carType.id());
             pst.setString(2, carType.carBrandId());
             pst.setString(3, carType.name());
+            pst.execute();
         } catch (SQLException e) {
             System.out.println("addCarType"+e);
             return false;

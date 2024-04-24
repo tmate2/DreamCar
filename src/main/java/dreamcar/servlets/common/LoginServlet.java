@@ -46,7 +46,7 @@ public class LoginServlet extends HttpServlet {
             String hashedPassword = DigestUtils.sha256Hex(password);
             if (checkCredentials(hashedUsername, hashedPassword)) {
                 request.getSession().setAttribute("user", hashedUsername);
-                response.sendRedirect(request.getRequestURI().replace("/login", "/home"));
+                response.sendRedirect("home");
             }
             warning = true;
         }

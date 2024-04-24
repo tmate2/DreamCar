@@ -48,12 +48,11 @@ public class AdminLoginServlet extends HttpServlet {
             String hashedPassword = DigestUtils.sha256Hex(password);
             if (checkAdminCredentials(hashedUsername, hashedPassword)) {
                 request.getSession().setAttribute("admin", hashedUsername);
-                response.sendRedirect(request.getRequestURI().replace("/admin/login", "/admin"));
+                response.sendRedirect("admin");
             }
             warning = true;
         }
         writer.println(ResponseComponents.getLogin("", warning));
-        //TODO: Kitalálni valamit arra, hogy ne dobjon tovább az admin/admin/login-ra, ha az Admin-ra kattintok megint
         writer.println(ResponseComponents.getFooter());
         writer.close();
     }
