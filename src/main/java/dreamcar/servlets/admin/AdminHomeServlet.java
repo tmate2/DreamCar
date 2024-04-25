@@ -54,8 +54,8 @@ public class AdminHomeServlet extends HttpServlet {
                     </div>
                     <div class="d-flex justify-content-around m-3">
                         <button type="submit" class="btn btn-danger m-2 rounded-2" name="deleterequest" form="queryform" style="font-size: 2vh">Kijelöltek törlése</button>
-                        <button type="submit" class="btn btn-light m-2 rounded-2" name="addnewbrand" form="queryform" style="font-size: 2vh">Új márka felvétel</button>
-                        <button type="submit" class="btn btn-light m-2 rounded-2" name="addnewtype" form="queryform" style="font-size: 2vh">Új típus felvétel</button>
+                        <button type="submit" class="btn btn-light m-2 rounded-2" name="addnewbrand" form="queryform" style="font-size: 2vh">Márkák kezelése</button>
+                        <button type="submit" class="btn btn-light m-2 rounded-2" name="addnewtype" form="queryform" style="font-size: 2vh">Típusok kezelése</button>
                     </div>
                     <div class="d-flex justify-content-around m-3">
                         <button type="submit" class="btn btn-danger m-2 rounded-2" name="deleteallrequest" form="queryform" style="font-size: 2vh">Összes kérés törlése</button>
@@ -91,6 +91,7 @@ public class AdminHomeServlet extends HttpServlet {
                     </div>
                     <div class="d-flex justify-content-around m-3">
                         <button type="submit" class="btn btn-danger m-2 rounded-2" name="deletelockedusers" form="userform" style="font-size: 2vh">Összes zárolt felhasználó törlése</button>
+                        <button type="button" class="btn btn-light m-2 rounded-2" style="font-size: 2vh" onclick="location.href = 'newuser'">Felhasználó hozzáadása</button>
                     </div>
                  </form>
             """;
@@ -115,7 +116,7 @@ public class AdminHomeServlet extends HttpServlet {
                 """;
         ArrayList<String> rows = new ArrayList<>();
         for (UserRequest request : userRequests) {
-            rows.add(String.format(rowSample, request.request(), request.username(), request.username()));
+            rows.add(String.format(rowSample, request.request(), request.username(), request.request()));
         }
         return String.join("\n", rows);
     }
@@ -152,14 +153,16 @@ public class AdminHomeServlet extends HttpServlet {
                     .map(r -> r.substring(6))
                     .collect(Collectors.toCollection(ArrayList::new));
             RequestTableManager rtm = new RequestTableManager(MySqlConnection.getConnection());
-            userRequests.forEach(rtm::deleteRequest);
+            rtm.getRequests().stream()
+                    .filter(r -> userRequests.contains(r.request()))
+                    .forEach(r -> rtm.deleteRequest(r.request()));
         } else if (request.getParameter("addnewbrand") != null) {
             response.sendRedirect(request.getRequestURI().replace("/admin", "/addbrand"));
         } else if (request.getParameter("addnewtype") != null) {
             response.sendRedirect(request.getRequestURI().replace("/admin", "/addtype"));
         } else if (request.getParameter("deleteallrequest") != null) {
             RequestTableManager rtm = new RequestTableManager(MySqlConnection.getConnection());
-            rtm.getRequests().forEach(r -> rtm.deleteRequest(r.username()));
+            rtm.getRequests().forEach(r -> rtm.deleteRequest(r.request()));
         } else if (request.getParameter("deleteselectedusers") != null) {
             ArrayList<String> users = request.getParameterMap().keySet().stream()
                     .filter(r -> r.startsWith("uchck-"))

@@ -39,7 +39,7 @@ public class FavCarTableManager extends DatabaseManager {
     }
 
     public void deleteFavCar(FavCar favCar) {
-        new CarPicManager(connection).deleteCarPicById(favCar.id());
+        new CarPicManager(connection).deleteCarPicByFavCarId(favCar.id());
 
         String sqlQuery = String.format(DELETE_QUERY, TABLE, "id");
         try {

@@ -1,10 +1,11 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Tomcat" type="#com.intellij.j2ee.web.tomcat.TomcatRunConfigurationFactory" factoryName="Local" APPLICATION_SERVER_NAME="Tomcat 10.1.20" ALTERNATIVE_JRE_ENABLED="false">
-    <option name="UPDATING_POLICY" value="restart-server" />
+    <option name="OPEN_IN_BROWSER_URL" value="http://localhost:8080/DreamCar-1.0/" />
+    <option name="UPDATING_POLICY" value="update-resources" />
     <deployment>
-      <artifact name="DreamCar:war">
+      <artifact name="DreamCar-1.0">
         <settings>
-          <option name="CONTEXT_PATH" value="/DreamCar-1.0" />
+          <option name="CONTEXT_PATH" value="/DreamCa-1.0" />
         </settings>
       </artifact>
     </deployment>
@@ -80,10 +81,8 @@
       </SHUTDOWN>
     </ConfigurationWrapper>
     <method v="2">
-      <option name="BuildArtifacts" enabled="true">
-        <artifact name="DreamCar:war" />
-      </option>
       <option name="Make" enabled="true" />
+      <option name="BuildArtifacts" enabled="true" />
     </method>
   </configuration>
 </component>

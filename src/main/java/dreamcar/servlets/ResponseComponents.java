@@ -23,13 +23,18 @@ public class ResponseComponents {
                 <link rel="stylesheet" href="style/style.css">
             </head>
             <body>
-                <div id="container" class="container d-flex flex-column m-auto vh-100 h-100 p-0 text-center justify-content-between">
+                <div id="container" class="container d-flex flex-column m-auto vh-100 p-0 text-center justify-content-between">
             """;
 
     private static final String LOGIN = """
-                    <div class="d-flex justify-content-center">
+                    <div class="w-100 bg-dark p-2 text-light d-flex justify-content-start">
+                                <button class="btn btn-secondary justify-content-center"  type="button" style="font-size: 1.5vh;"  onclick="location.href = 'index.html'">
+                                    Vissza
+                                </button>
+                    </div>
+                    <div class="d-flex justify-content-center vh-100 h-100">
                         <div class="col-sm-5 col-xs-7 m-3" style="min-width: 40vh;">
-                            <div class="card h-100 m-3  pt-3 d-flex flex-column flex-box justify-content-between rounded-4 shadow bg-light text-dark">
+                            <div class="card m-3  pt-3 d-flex flex-column flex-box justify-content-between rounded-4 shadow bg-light text-dark">
                                 <h2 class="card-header">Bejelentkezés</h2>
                                 <div class="card-body h-100 d-flex flex-column justify-content-between">
                                     <form id="bejelentkezes" method="post" action="%s">

@@ -40,11 +40,11 @@ public class RequestTableManager extends DatabaseManager {
         return requests;
     }
 
-    public void deleteRequest(String username) {
-        String sqlQuery = String.format(DELETE_QUERY, TABLE, "username");
+    public void deleteRequest(String request) {
+        String sqlQuery = String.format(DELETE_QUERY, TABLE, "request");
         try {
             PreparedStatement pst = connection.prepareStatement(sqlQuery);
-            pst.setString(1, username);
+            pst.setString(1, request);
             pst.execute();
         } catch (SQLException e) {
             System.out.println(""+e);

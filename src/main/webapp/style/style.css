@@ -9,7 +9,8 @@ body {
     background-position: center;
     background-size: cover;
     color: darkgoldenrod;
-    height: 25vw;
+    max-height: 23vw;
+    min-height: 17vw;
     justify-content: center;
 }
 #header > h1 {
@@ -21,7 +22,7 @@ body {
 }
 
 #container {
-    height: 100%;
+    height: 100rem;
     background-color: silver;
     max-width: 900px;
 }

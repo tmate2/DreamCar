@@ -47,7 +47,7 @@ public class HomeServlet extends HttpServlet {
                         </div>
                     </div>
             
-                    <div class="d-flex justify-content-center w-100">
+                    <div class="d-flex justify-content-center vh-100 w-100">
                         <div class="col-sm-5 col-xs-7 m-3 w-75" style="min-width: 40vh;">
                             <table table class="table table-striped table-bordered">
                                 <thead>

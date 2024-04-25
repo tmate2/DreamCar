@@ -1,7 +1,7 @@
 package dreamcar.servlets.admin;
 
 import dreamcar.dbmanagement.CarBrandManager;
-import dreamcar.dbmanagement.RequestTableManager;
+
 import dreamcar.dbmanagement.UserTableManager;
 import dreamcar.dbmanagement.tables.CarBrand;
 import dreamcar.dbmanagement.tables.User;
@@ -16,6 +16,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -23,7 +24,7 @@ import java.util.stream.Collectors;
 public class AddCarBrandServlet extends HttpServlet {
 
     private final String BRAND_TABLE = """
-                    <form id="brandform" method="post">
+                    <form id="brandform" method="post" class="m-3">
                         <div class="d-flex justify-content-center h-100 w-100 p-3">
                             <div class="col-sm-5 col-xs-7 w-100 p-3 table-responsive" style="min-width: 40vh;">
                                 <h1>Márkák</h1>
@@ -40,14 +41,15 @@ public class AddCarBrandServlet extends HttpServlet {
                                 </table>
                             </div>
                         </div>
-                        <div class="d-flex justify-content-around">
-                            <button type="submit" class="btn btn-danger m-2 rounded-2" name="deletebrands" form="brandform" style="font-size: 2vh;">Kijelöltek törlése</button>
-                        </div>
+                        
                     </form>
+                    <div class="d-flex justify-content-around">
+                        <button type="submit" class="btn btn-danger m-2 rounded-2" name="deletebrands" form="brandform" style="font-size: 2vh;">Kijelöltek törlése</button>
+                    </div>
             """;
 
     private final String ADDING_FORM = """
-                    <div class="d-flex justify-content-center">
+                    <div class="d-flex justify-content-center m-0 p-0" style="background-color: silver;">
                         <div class="col-sm-5 col-xs-7 m-3" style="min-width: 40vh;">
                             <div class="card h-100 m-3  pt-3 d-flex flex-column flex-box justify-content-between rounded-4 shadow bg-light text-dark">
                                 <h2 class="card-header">Hozzáadása</h2>
@@ -57,7 +59,7 @@ public class AddCarBrandServlet extends HttpServlet {
                                         <input type="text" class="rounded-2" name="carbrandname" placeholder="pl: Ford"> <br>
                                         <p class="text-danger" %s>Ez a márka már szerepel az adatbázisban</p>
                                         <button type="submit" class="btn btn-info m-2 rounded-2" style="font-size: 2vh" form="carbrandhozzaadas" name="adding">Hozzáadása</button><br>
-                                        <button type="button" class="btn btn-danger rounded-2" style="font-size: 2vh" onclick="location.href = 'admin'">Mégse</button>
+                                        <button type="button" class="btn btn-danger rounded-2" style="font-size: 2vh" onclick="location.href = 'admin'">Vissza</button>
                                     </form>
                                 </div>
                             </div>
@@ -82,7 +84,7 @@ public class AddCarBrandServlet extends HttpServlet {
                                             </tr>
                 """;
         ArrayList<String> rows = new ArrayList<>();
-        for (CarBrand cb : carBrands) {
+        for (CarBrand cb : cbm.getCarBrands().stream().sorted(Comparator.comparing(CarBrand::name)).toList()) {
             rows.add(String.format(rowSample, cb.name(), cb.id()));
         }
         return String.join("\n", rows);

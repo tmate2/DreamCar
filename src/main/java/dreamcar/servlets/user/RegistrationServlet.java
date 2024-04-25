@@ -18,7 +18,12 @@ import java.util.Optional;
 @WebServlet("/registration")
 public class RegistrationServlet extends HttpServlet {
 
-    private static final String LOGIN_FORM = """
+    private static final String REG_FORM = """
+                    <div class="w-100 bg-dark p-2 text-light d-flex justify-content-start">
+                            <button class="btn btn-secondary justify-content-center"  type="button" style="font-size: 1.5vh;"  onclick="location.href = 'index.html'">
+                                Vissza
+                            </button>
+                    </div>
                     <div class="d-flex justify-content-center">
                         <div class="col-sm-5 col-xs-7 m-3" style="min-width: 40vh;">
                             <div class="card h-100 m-3  pt-3 d-flex flex-column flex-box justify-content-between rounded-4 shadow bg-light text-dark">
@@ -113,7 +118,7 @@ public class RegistrationServlet extends HttpServlet {
                 utm.addUser(new User(hashedUsername, hashedPassword, false, fullname, true));
                 response.sendRedirect("login");
             }
-            writer.println(String.format(LOGIN_FORM, reservedUsername, badUsername, differentPasswords, emptyFields));
+            writer.println(String.format(REG_FORM, reservedUsername, badUsername, differentPasswords, emptyFields));
             writer.println(ResponseComponents.getFooter());
 
             writer.close();

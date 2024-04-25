@@ -67,7 +67,7 @@ public class CarPicManager extends DatabaseManager {
         return carPics;
     }
 
-    public void deleteCarPicById(String id) {
+    public void deleteCarPicByFavCarId(String id) {
         String sqlQuery = String.format(DELETE_QUERY, TABLE, "id");
         try {
             PreparedStatement pst = super.connection.prepareStatement(sqlQuery);
@@ -79,7 +79,7 @@ public class CarPicManager extends DatabaseManager {
     }
 
     public void deleteCarPic(CarPic carPic) {
-        deleteCarPicById(carPic.id());
+        deleteCarPicByFavCarId(carPic.favCarId());
     }
 
 }
