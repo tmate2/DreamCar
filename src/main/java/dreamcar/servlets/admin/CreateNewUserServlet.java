@@ -23,6 +23,9 @@ import java.util.Optional;
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
  */
 
+/**
+ * Admin felületről történő új felhasználó felvételét biztosító servlet osztály.
+ */
 @WebServlet("/newuser")
 public class CreateNewUserServlet extends HttpServlet {
 
@@ -71,10 +74,22 @@ public class CreateNewUserServlet extends HttpServlet {
         doPost(req, resp);
     }
 
+    /**
+     * Megvizsgálja a felhasználónevet, hogy megfelel-e a követelményeknek.
+     *
+     * @param username vizsgálandó felhasználónév
+     * @return megfelelés eredménye
+     */
     private boolean checkUsernameIsValid(String username) {
         return username.matches("^[a-zA-Z0-9_-]{3,15}$");
     }
 
+    /**
+     * Ellenőrzi, hogy az adott felhasználónév szerepel-e már a user táblában.
+     *
+     * @param username
+     * @return visszaadja, hogy van-e már ilyen felhasználónév a user táblában
+     */
     private boolean checkUsernameIsExist(String username) {
         String hashedUsername = DigestUtils.sha256Hex(username);
         UserTableManager utm = new UserTableManager(MySqlConnection.getConnection());
@@ -87,7 +102,17 @@ public class CreateNewUserServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) {
         ResponseComponents.setResponseHeader(response);
 
+        UserTableManager utm = new UserTableManager(MySqlConnection.getConnection());
+        String adminname = Optional.ofNullable((String) request.getSession().getAttribute("admin")).orElse("");
+
+
         try {
+            if (adminname.isEmpty()) {
+                response.sendRedirect("adminlogin");
+            } else if (utm.getAdmins().stream().map(User::username).noneMatch(adminname::equals)) {
+                response.sendRedirect("adminlogin");
+            }
+
             String reservedUsername = "hidden";
             String badUsername = "hidden";
             String differentPasswords = "hidden";
@@ -101,6 +126,7 @@ public class CreateNewUserServlet extends HttpServlet {
 
             PrintWriter writer = response.getWriter();
             writer.println(ResponseComponents.getHeader("Registration"));
+
             if (username.isEmpty() && fullname.isEmpty() && password1.isEmpty() && password2.isEmpty()) {
                 everythingOk = false;
             } else if (username.isEmpty() || fullname.isEmpty() || password1.isEmpty() || password2.isEmpty()) {
@@ -116,14 +142,15 @@ public class CreateNewUserServlet extends HttpServlet {
                 differentPasswords = "";
                 everythingOk = false;
             }
+
             if (everythingOk) {
-                UserTableManager utm = new UserTableManager(MySqlConnection.getConnection());
                 String hashedUsername = DigestUtils.sha256Hex(username);
                 String hashedPassword = DigestUtils.sha256Hex(password1);
                 boolean isAdmin = request.getParameter("admin") != null;
                 utm.addUser(new User(hashedUsername, hashedPassword, isAdmin, fullname, true));
                 response.sendRedirect("admin");
             }
+
             writer.println(String.format(REG_FORM, reservedUsername, badUsername, differentPasswords, emptyFields));
             writer.println(ResponseComponents.getFooter());
 

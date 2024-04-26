@@ -1,6 +1,7 @@
 package dreamcar.servlets.user;
 
 import dreamcar.dbmanagement.UserTableManager;
+import dreamcar.dbmanagement.tables.User;
 import dreamcar.servlets.ResponseComponents;
 import dreamcar.startup.connection.MySqlConnection;
 import jakarta.servlet.annotation.WebServlet;
@@ -13,6 +14,9 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Optional;
 
+/**
+ * Felhasználó fiókjának zárolását biztosító servlet osztály.
+ */
 @WebServlet("/deleteuser")
 public class DeleteUserRequestServlet extends HttpServlet {
 
@@ -39,6 +43,13 @@ public class DeleteUserRequestServlet extends HttpServlet {
                     </div>
             """;
 
+    /**
+     * A felhasználóhoz tartozó jelszó ellenőrzése amivel véglegesíti a zárolást.
+     *
+     * @param username felhasználót azonosító felhasználónév
+     * @param password felhaználónévhez tartozó jelszó
+     * @return ellenőrzés eredménye
+     */
     private boolean checkPassword(String username, String password) {
         UserTableManager utm = new UserTableManager(MySqlConnection.getConnection());
         return utm.getUserByUsername(username).password().equals(password);
@@ -54,10 +65,12 @@ public class DeleteUserRequestServlet extends HttpServlet {
         ResponseComponents.setResponseHeader(response);
         String password = Optional.ofNullable(request.getParameter("password")).orElse("");
         try {
+            UserTableManager utm = new UserTableManager(MySqlConnection.getConnection());
             String username = (String) request.getSession().getAttribute("user");
+
             if (username.isEmpty()) {
                 response.sendRedirect("login");
-            } else if (!ResponseComponents.checkUserInHeader(request)) {
+            } else if (utm.getAdmins().stream().map(User::username).noneMatch(username::equals)) {
                 response.sendRedirect("login");
             }
             String hidden = "hidden";
@@ -65,12 +78,12 @@ public class DeleteUserRequestServlet extends HttpServlet {
                 hidden = "";
                 String hashedPassword = DigestUtils.sha256Hex(password);
                 if (checkPassword(username, hashedPassword)) {
-                    UserTableManager utm = new UserTableManager(MySqlConnection.getConnection());
                     utm.changeActivityStatus(utm.getUserByUsername(username));
                     request.getSession().invalidate();
                     response.sendRedirect(request.getRequestURI().replace("/deleteuser", "/"));
                 }
             }
+
             PrintWriter writer = response.getWriter();
             writer.println(ResponseComponents.getHeader("Delete User"));
             writer.println(String.format(DELETE, hidden));

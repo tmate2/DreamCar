@@ -9,12 +9,26 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+/**
+ * A fav_car táblát kezelő osztály
+ */
 public class FavCarTableManager extends DatabaseManager {
 
+    /**
+     * Csatlakozást biztosít a MySql szerverhez
+     *
+     * @param connection MySql kapcsolat
+     */
     public FavCarTableManager(Connection connection) {
         super(connection, "fav_car");
     }
 
+    /**
+     * Új rekordot vesz fel a fav_car táblába
+     *
+     * @param favCar
+     * @return
+     */
     public boolean addFavCar(FavCar favCar) {
         if (getFavCarIds().contains(favCar.id())) {
             return false;
@@ -38,6 +52,12 @@ public class FavCarTableManager extends DatabaseManager {
         return true;
     }
 
+    /**
+     * Törli az adott FavCar példányt a fav_car táblából és minden olyan rekordot
+     * a car_pic táblából, ahol az szerepel.
+     *
+     * @param favCar törlendő FavCar rekord
+     */
     public void deleteFavCar(FavCar favCar) {
         new CarPicManager(connection).deleteCarPicByFavCarId(favCar.id());
 
@@ -51,6 +71,12 @@ public class FavCarTableManager extends DatabaseManager {
         }
     }
 
+    /**
+     * Törli a felhasználóhoz tartozó összes FavCar rekordot a fav_car táblából
+     * és az ahoz tartozó car_pic rekordokat is.
+     *
+     * @param user a felhasználó akinek a FavCar példányait törölnénk
+     */
     public void deleteUsersFavCars(User user) {
         //Megjegyzés: ez a car_pic táblából is törli ezeket
         getUserFavCars(user.username())
@@ -66,6 +92,11 @@ public class FavCarTableManager extends DatabaseManager {
         }
     }
 
+    /**
+     * Vissza adja az összes FavCar rekordot a fav_car táblából
+     *
+     * @return fav_car táblából származó FavCar lista
+     */
     public ArrayList<FavCar> getFavCars() {
         ArrayList<FavCar> favCars = null;
         try {
@@ -87,6 +118,12 @@ public class FavCarTableManager extends DatabaseManager {
         return favCars;
     }
 
+    /**
+     * Visszaadja az adott userId-hoz tartozó fav_car rekordok listáját.
+     *
+     * @param userId kérendő felhasználó azonosítója
+     * @return felhasználóhoz tartozó FavCar lista
+     */
     public ArrayList<FavCar> getUserFavCars(String userId) {
         ArrayList<FavCar> favCars = null;
         String sqlQuery = String.format("SELECT * FROM %s WHERE user_id = ?", TABLE);
@@ -111,6 +148,11 @@ public class FavCarTableManager extends DatabaseManager {
         return favCars;
     }
 
+    /**
+     * Visszaadja a fav_car tábla id oszlopát
+     *
+     * @return fav_car tábla id oszlopából származó lista
+     */
     private ArrayList<String> getFavCarIds() {
         ArrayList<String> favCarIds = null;
         try {

@@ -17,6 +17,9 @@ import java.util.ArrayList;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+/**
+ * Az admin felhaszálók kezelőfelületét biztosító servlet osztály.
+ */
 @WebServlet("/admin")
 public class AdminHomeServlet extends HttpServlet {
 
@@ -96,6 +99,11 @@ public class AdminHomeServlet extends HttpServlet {
                  </form>
             """;
 
+    /**
+     * A query tábla tartalma alapján legenerálja a megjelenítendő táblázat törzsét.
+     *
+     * @return egy táblázat törzse a query tábla rekordjaival
+     */
     private String createQueryTable() {
         RequestTableManager rtm = new RequestTableManager(MySqlConnection.getConnection());
         ArrayList<UserRequest> userRequests = rtm.getRequests();
@@ -121,6 +129,11 @@ public class AdminHomeServlet extends HttpServlet {
         return String.join("\n", rows);
     }
 
+    /**
+     * A user tábla tartalma alapján legenerálja a megjelenítendő táblázat törzsét.
+     *
+     * @return egy táblázat törzse a user tábla rekordjaival
+     */
     private String createUserTable(String currentUser) {
         UserTableManager utm = new UserTableManager(MySqlConnection.getConnection());
         String rowSample = """
@@ -146,12 +159,20 @@ public class AdminHomeServlet extends HttpServlet {
         return String.join("\n", rows);
     }
 
+    /**
+     * Az oldalon megtalálható gombok funkcióit biztosítja.
+     *
+     * @param request
+     * @param response
+     * @throws IOException
+     */
     private void handelButtons(HttpServletRequest request, HttpServletResponse response) throws IOException {
         if (request.getParameter("deleterequest") != null) {
             ArrayList<String> userRequests = request.getParameterMap().keySet().stream()
                     .filter(r -> r.startsWith("rchck-"))
                     .map(r -> r.substring(6))
                     .collect(Collectors.toCollection(ArrayList::new));
+
             RequestTableManager rtm = new RequestTableManager(MySqlConnection.getConnection());
             rtm.getRequests().stream()
                     .filter(r -> userRequests.contains(r.request()))
@@ -168,6 +189,7 @@ public class AdminHomeServlet extends HttpServlet {
                     .filter(r -> r.startsWith("uchck-"))
                     .map(r -> r.substring(6))
                     .collect(Collectors.toCollection(ArrayList::new));
+
             UserTableManager utm = new UserTableManager(MySqlConnection.getConnection());
             users.forEach(user -> utm.deleteUser(utm.getUserByUsername(user)));
         } else if (request.getParameter("changeusertypes") != null) {
@@ -175,6 +197,7 @@ public class AdminHomeServlet extends HttpServlet {
                     .filter(r -> r.startsWith("uchck-"))
                     .map(r -> r.substring(6))
                     .collect(Collectors.toCollection(ArrayList::new));
+
             UserTableManager utm = new UserTableManager(MySqlConnection.getConnection());
             users.forEach(user -> utm.changeAdminStatus(utm.getUserByUsername(user)));
         } else if (request.getParameter("changeuserstatus") != null) {
@@ -182,6 +205,7 @@ public class AdminHomeServlet extends HttpServlet {
                     .filter(r -> r.startsWith("uchck-"))
                     .map(r -> r.substring(6))
                     .collect(Collectors.toCollection(ArrayList::new));
+
             UserTableManager utm = new UserTableManager(MySqlConnection.getConnection());
             users.forEach(user -> utm.changeActivityStatus(utm.getUserByUsername(user)));
         } else if (request.getParameter("deletelockedusers") != null) {
@@ -204,6 +228,7 @@ public class AdminHomeServlet extends HttpServlet {
         try {
             UserTableManager utm = new UserTableManager(MySqlConnection.getConnection());
             String username = Optional.ofNullable((String) request.getSession().getAttribute("admin")).orElse("");
+
             if (username.isEmpty()) {
                 response.sendRedirect("adminlogin");
             } else if (utm.getAdmins().stream().map(User::username).noneMatch(username::equals)) {

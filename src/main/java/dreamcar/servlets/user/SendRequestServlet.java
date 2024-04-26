@@ -1,6 +1,8 @@
 package dreamcar.servlets.user;
 
 import dreamcar.dbmanagement.RequestTableManager;
+import dreamcar.dbmanagement.UserTableManager;
+import dreamcar.dbmanagement.tables.User;
 import dreamcar.dbmanagement.tables.UserRequest;
 import dreamcar.servlets.ResponseComponents;
 import dreamcar.startup.connection.MySqlConnection;
@@ -13,6 +15,9 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Optional;
 
+/**
+ * Felhasználók kérvényt leadó felület servlet osztálya.
+ */
 @WebServlet("/request")
 public class SendRequestServlet extends HttpServlet {
 
@@ -47,12 +52,19 @@ public class SendRequestServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) {
         ResponseComponents.setResponseHeader(response);
-
-        String userRequest = Optional.ofNullable(request.getParameter("request")).orElse("");
+        String username = Optional.ofNullable((String) request.getSession().getAttribute("user")).orElse("");
+        UserTableManager utm = new UserTableManager(MySqlConnection.getConnection());
 
         try {
+            if (username.isEmpty()) {
+                response.sendRedirect("login");
+            } else if (utm.getAdmins().stream().map(User::username).noneMatch(username::equals)) {
+                response.sendRedirect("login");
+            }
+
+            String userRequest = Optional.ofNullable(request.getParameter("request")).orElse("");
+
             if (!userRequest.isEmpty()) {
-                String username = request.getSession().getAttribute("user").toString();
                 System.out.println("username: " + username);
                 System.out.println("request: " + userRequest);
                 RequestTableManager rtm = new RequestTableManager(MySqlConnection.getConnection());

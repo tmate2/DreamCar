@@ -7,10 +7,16 @@ import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
 import org.apache.commons.codec.digest.DigestUtils;
 
+/**
+ * A webalkalmazás elindítását segító osztály.
+ */
 public class StartUp implements ServletContextListener {
 
     private boolean connectionFailed = false;
 
+    /**
+     * Létrehozza és ellenőrzi, hogy sikeresen létrejött-e a kapcsolat az MySQL szerverrel
+     */
     private void connectionCheck() {
         MySqlConnection.connectToServer();
 
@@ -18,6 +24,12 @@ public class StartUp implements ServletContextListener {
         //TODO: leállítani a futást
     }
 
+    /**
+     * A webalkalmazás indulásakor ellenőrzi, hogy létezik-e admin felhasználó. Ha nem
+     * létrehoz egy alap admin felhasználót admin jelszóval.
+     *
+     * @param servletContextEvent
+     */
     @Override
     public void contextInitialized(ServletContextEvent servletContextEvent) {
         connectionCheck();
@@ -32,6 +44,11 @@ public class StartUp implements ServletContextListener {
         }
     }
 
+    /**
+     * A webalkalmazás leállításánál biztonságosan megszünteti a kapcsolatot a MySql szerverrel.
+     *
+     * @param sce
+     */
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
         if (!connectionFailed) {

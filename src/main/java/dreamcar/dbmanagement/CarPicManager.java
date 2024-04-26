@@ -9,12 +9,25 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
+/**
+ * A car_brand táblát kezeli
+ */
 public class CarPicManager extends DatabaseManager {
 
+    /**
+     * Csatlakozik a MySQL szerverhez
+     *
+     * @param connection MySQL kapcsolat
+     */
     public CarPicManager(Connection connection) {
         super(connection, "car_pic");
     }
 
+    /**
+     * Új rekordot vesz fel a car_pic táblába, ha már van ilyen rekord akkor felülírja a kép elérésiútját
+     *
+     * @param carPic táblához tartozó rekord osztály
+     */
     public void addCarPic(CarPic carPic) {
         if (getCarPicsIds().contains(carPic.id())) {
             changeImg(carPic, carPic.imgName());
@@ -31,6 +44,12 @@ public class CarPicManager extends DatabaseManager {
         }
     }
 
+    /**
+     * Mődosítja az adott példány img rekordját a car_pic táblában
+     *
+     * @param carPic táblához tartozó rekord osztály
+     * @param newImgName az új kép elérésiútja
+     */
     public void changeImg(CarPic carPic, String newImgName) {
         String sqlQuery = String.format(UPDATE_QUERY, TABLE, "img", "id");
         try {
@@ -43,12 +62,22 @@ public class CarPicManager extends DatabaseManager {
         }
     }
 
+    /**
+     * car_pic id oszlopát adja vissza
+     *
+     * @return car_pic id-k listája
+     */
     public ArrayList<String> getCarPicsIds() {
         return getCarPics().stream()
                 .map(CarPic::id)
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
+    /**
+     * Visszaadja az össze CarPic objektumot ami a táblában szerepel
+     *
+     * @return car_pic táblából származó CarPic lista
+     */
     public ArrayList<CarPic> getCarPics() {
         ArrayList<CarPic> carPics = null;
         try {
@@ -67,8 +96,13 @@ public class CarPicManager extends DatabaseManager {
         return carPics;
     }
 
+    /**
+     * Törli a car_pic táblából a megadott fav_car_id-t tartalmazó rekordot
+     *
+     * @param id CarPic rekord fav_car_id azonosítója
+     */
     public void deleteCarPicByFavCarId(String id) {
-        String sqlQuery = String.format(DELETE_QUERY, TABLE, "id");
+        String sqlQuery = String.format(DELETE_QUERY, TABLE, "fav_car_id");
         try {
             PreparedStatement pst = super.connection.prepareStatement(sqlQuery);
             pst.setString(1, id);
@@ -78,6 +112,11 @@ public class CarPicManager extends DatabaseManager {
         }
     }
 
+    /**
+     * Törli a car_pic táblából a a megadott példányt
+     *
+     * @param carPic törlendő CarPic példány
+     */
     public void deleteCarPic(CarPic carPic) {
         deleteCarPicByFavCarId(carPic.favCarId());
     }

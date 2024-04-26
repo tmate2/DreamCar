@@ -1,7 +1,5 @@
 package dreamcar.startup.connection;
 
-import com.mysql.cj.jdbc.Driver;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -10,6 +8,9 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 
+/**
+ * A MySql kapcsolatért felelős osztály
+ */
 public class MySqlConnection {
 
     private static String username;
@@ -20,6 +21,10 @@ public class MySqlConnection {
 
     private static Connection connection;
 
+    /**
+     * Beolvassa a WEB-INF-en belül található konfigurációs állományt ami alapján
+     * csatlakozik a MySql szerverhez
+     */
     public static void connectToServer() {
         try {
             File config = new File("../webapps/DreamCar-1.0/WEB-INF/properties.conf");
@@ -47,10 +52,18 @@ public class MySqlConnection {
 
     }
 
+    /**
+     * Elérhetővé teszi a létrejött kapcsolatot.
+     *
+     * @return MySql adatbázis kapcsolat
+     */
     public static Connection getConnection() {
         return connection;
     }
 
+    /**
+     * Lezárja a kapcsolatot.
+     */
     public static void terminateConnection() {
         try {
             connection.close();

@@ -4,7 +4,6 @@ import dreamcar.dbmanagement.UserTableManager;
 import dreamcar.dbmanagement.tables.User;
 import dreamcar.servlets.ResponseComponents;
 import dreamcar.startup.connection.MySqlConnection;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -15,6 +14,9 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Optional;
 
+/**
+ * Felhasználói regisztrációt biztosító servlest osztály.
+ */
 @WebServlet("/registration")
 public class RegistrationServlet extends HttpServlet {
 
@@ -56,15 +58,22 @@ public class RegistrationServlet extends HttpServlet {
                     </div>
                 """;
 
-    @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
-        doPost(req, resp);
-    }
-
+    /**
+     * Megvizsgálja a felhasználónevet, hogy megfelel-e a követelményeknek.
+     *
+     * @param username vizsgálandó felhasználónév
+     * @return megfelelés eredménye
+     */
     private boolean checkUsernameIsValid(String username) {
         return username.matches("^[a-zA-Z0-9_-]{3,15}$");
     }
 
+    /**
+     * Ellenőrzi, hogy az adott felhasználónév szerepel-e már a user táblában.
+     *
+     * @param username
+     * @return visszaadja, hogy van-e már ilyen felhasználónév a user táblában
+     */
     private boolean checkUsernameIsExist(String username) {
         String hashedUsername = DigestUtils.sha256Hex(username);
         UserTableManager utm = new UserTableManager(MySqlConnection.getConnection());
@@ -74,14 +83,12 @@ public class RegistrationServlet extends HttpServlet {
     }
 
     @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
+        doPost(req, resp);
+    }
+
+    @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) {
-        try {
-            if (ResponseComponents.checkUserInHeader(request)) {
-                response.sendRedirect("home");
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
         String reservedUsername = "hidden";
         String badUsername = "hidden";
         String differentPasswords = "hidden";
@@ -96,6 +103,7 @@ public class RegistrationServlet extends HttpServlet {
         try {
             PrintWriter writer = response.getWriter();
             writer.println(ResponseComponents.getHeader("Registration"));
+
             if (username.isEmpty() && fullname.isEmpty() && password1.isEmpty() && password2.isEmpty()) {
                 everythingOk = false;
             } else if (username.isEmpty() || fullname.isEmpty() || password1.isEmpty() || password2.isEmpty()) {
@@ -111,13 +119,17 @@ public class RegistrationServlet extends HttpServlet {
                 differentPasswords = "";
                 everythingOk = false;
             }
+
             if (everythingOk) {
                 UserTableManager utm = new UserTableManager(MySqlConnection.getConnection());
+
                 String hashedUsername = DigestUtils.sha256Hex(username);
                 String hashedPassword = DigestUtils.sha256Hex(password1);
+
                 utm.addUser(new User(hashedUsername, hashedPassword, false, fullname, true));
                 response.sendRedirect("login");
             }
+
             writer.println(String.format(REG_FORM, reservedUsername, badUsername, differentPasswords, emptyFields));
             writer.println(ResponseComponents.getFooter());
 

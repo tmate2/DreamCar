@@ -6,10 +6,11 @@ import dreamcar.startup.connection.MySqlConnection;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
+/**
+ * A válaszokban gyakran használt eszközöket tartalmazó osztály.
+ */
 public class ResponseComponents {
 
     private static final String HEADER = """
@@ -63,15 +64,32 @@ public class ResponseComponents {
             """;
 
 
+    /**
+     * Egy HTML minta <head>...</head> és <body><div class="container...">... részét adja vissza.
+     *
+     * @param title Az oldal címe
+     * @return Oldal címével ellátott HTML minta részlet
+     */
     public static String getHeader(String title) {
         return String.format(HEADER, title);
     }
 
+    /**
+     * Egy egyszerű bejelnetkezési HTML minta törzse.
+     *
+     * @param servletName Feldolgozó szervlet URI paramétere
+     * @param warning Hibás bejelnetkezési figyelmeztetés megjelenítése
+     * @return Formázott bejelentkezési HTML törzs
+     */
     public static String getLogin(String servletName, boolean warning) {
         String hidde = warning ? "" : "hidden";
         return String.format(LOGIN, servletName, hidde);
     }
 
+    /**
+     * Egy HTML minta lezáró részét adja vissza.
+     * @return HTML minta lezáró része
+     */
     public static String getFooter() {
         return FOOTER;
     }
@@ -85,7 +103,11 @@ public class ResponseComponents {
                 .anyMatch(user::equals);
     }
 
-
+    /**
+     * Letiltja, hogy a böngésző cache-lje az adott választ.
+     *
+     * @param response
+     */
     public static void setResponseHeader(HttpServletResponse response) {
         // MINDENHOVA KELL AHOL BEJELENTKEZVE LEHET CSAK A USER
         response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1

@@ -7,6 +7,9 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 
+/**
+ * Felhasználók session-ját lezáró servlet osztály.
+ */
 @WebServlet("/logout")
 public class LogoutServlet extends HttpServlet {
 

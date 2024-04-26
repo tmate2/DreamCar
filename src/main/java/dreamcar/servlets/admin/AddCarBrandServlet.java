@@ -20,6 +20,9 @@ import java.util.Comparator;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+/**
+ * A car_brand tábla kezelését segítő servlet osztály
+ */
 @WebServlet("/addbrand")
 public class AddCarBrandServlet extends HttpServlet {
 
@@ -67,6 +70,11 @@ public class AddCarBrandServlet extends HttpServlet {
                     </div>
             """;
 
+    /**
+     * A car_brand tábla tartalma alapján legenerálja a megjelenítendő táblázat törzsét.
+     *
+     * @return egy táblázat törzse a car_brand tábla rekordjaival
+     */
     private String createTable() {
         CarBrandManager cbm = new CarBrandManager(MySqlConnection.getConnection());
         ArrayList<CarBrand> carBrands = cbm.getCarBrands();
@@ -77,6 +85,7 @@ public class AddCarBrandServlet extends HttpServlet {
                                                 </tr>
                     """;
         }
+
         String rowSample = """
                                             <tr>
                                                 <td>%s</td>
@@ -116,6 +125,7 @@ public class AddCarBrandServlet extends HttpServlet {
                         .filter(r -> r.startsWith("cbchck-"))
                         .map(r -> r.substring(7))
                         .collect(Collectors.toCollection(ArrayList::new));
+
                 CarBrandManager cbm = new CarBrandManager(MySqlConnection.getConnection());
                 brandIds.forEach(id -> cbm.deleteCarBrand(
                         cbm.getCarBrands().stream()
@@ -124,6 +134,7 @@ public class AddCarBrandServlet extends HttpServlet {
             } else if (request.getParameter("adding") != null && request.getParameter("carbrandname") != null) {
                 String newCarBrandName = request.getParameter("carbrandname").toUpperCase();
                 CarBrandManager cbm = new CarBrandManager(MySqlConnection.getConnection());
+
                 if (!cbm.getCarBrandNames().contains(newCarBrandName)) {
                     cbm.addCarBrand(new CarBrand(
                             DigestUtils.sha256Hex(newCarBrandName)

@@ -1,11 +1,9 @@
 package dreamcar.servlets.user;
 
-import dreamcar.dbmanagement.CarBrandManager;
-import dreamcar.dbmanagement.CarPicManager;
-import dreamcar.dbmanagement.CarTypeManager;
-import dreamcar.dbmanagement.FavCarTableManager;
+import dreamcar.dbmanagement.*;
 import dreamcar.dbmanagement.tables.CarType;
 import dreamcar.dbmanagement.tables.FavCar;
+import dreamcar.dbmanagement.tables.User;
 import dreamcar.servlets.ResponseComponents;
 import dreamcar.startup.connection.MySqlConnection;
 import jakarta.servlet.annotation.WebServlet;
@@ -17,6 +15,9 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 
+/**
+ * Adott felhasználóhoz tartozó fav_car és car_pic rekordjait képpel megjelenítő servlet osztály.
+ */
 @WebServlet("/mycars")
 public class MyFavCarsServlet extends HttpServlet {
 
@@ -45,6 +46,13 @@ public class MyFavCarsServlet extends HttpServlet {
                             </div>
                         </div>
             """;
+
+    /**
+     * Megjelenítésül szolgáló kártya legenerálása.
+     *
+     * @param username felhasználót azonosító felhasználónév
+     * @return car_pic és car_type rekord alapján generált kártyák
+     */
     private String createCards(String username) {
         FavCarTableManager fctm = new FavCarTableManager(MySqlConnection.getConnection());
         ArrayList<FavCar> favCars = fctm.getUserFavCars(username);
@@ -59,20 +67,23 @@ public class MyFavCarsServlet extends HttpServlet {
             String year = String.valueOf(favCar.year());
             String carTypeId = favCar.carTypeId();
             String fuel = favCar.fuel();
-            System.out.println("IIIIIIIIITTTTTTT JOOOOOOOOOOOOOOOOOOOOOOOO");
+
             CarPicManager cpm = new CarPicManager(MySqlConnection.getConnection());
             String picPath = cpm.getCarPics().stream()
                     .filter(cp -> cp.favCarId().equals(favCar.id()))
                     .findFirst().get()
                     .imgName();
+
             CarTypeManager ctm = new CarTypeManager(MySqlConnection.getConnection());
             CarType carType = ctm.getCarTypes().stream()
                     .filter(ct -> ct.id().equals(carTypeId))
                     .findFirst().get();
+
             CarBrandManager cbm = new CarBrandManager(MySqlConnection.getConnection());
             String carBrandName = cbm.getCarBrands().stream()
                     .filter(cb -> cb.id().equals(carType.carBrandId()))
                     .findFirst().get().name();
+
             cards.add(
                     String.format(CARD_SAMPLE
                             , String.format(TITLE, year, carBrandName, carType.name(), fuel)
@@ -90,13 +101,19 @@ public class MyFavCarsServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) {
         ResponseComponents.setResponseHeader(response);
+        UserTableManager utm = new UserTableManager(MySqlConnection.getConnection());
         String username = (String) request.getSession().getAttribute("user");
+
         try {
+            if (username.isEmpty()) {
+                response.sendRedirect("login");
+            } else if (utm.getAdmins().stream().map(User::username).noneMatch(username::equals)) {
+                response.sendRedirect("login");
+            }
+
             PrintWriter writer = response.getWriter();
             writer.println(ResponseComponents.getHeader("My Favorite Cars"));
-
             writer.println(String.format(BODY, createCards(username)));
-
             writer.println(ResponseComponents.getFooter());
             writer.close();
         } catch (IOException e) {

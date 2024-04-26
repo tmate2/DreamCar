@@ -18,6 +18,9 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 
+/**
+ * Felhasználói főoldalt biztosító servlet osztály.
+ */
 @WebServlet("/home")
 public class HomeServlet extends HttpServlet {
 
@@ -67,10 +70,23 @@ public class HomeServlet extends HttpServlet {
                     <script src="js/userControl.js"></script>
             """;
 
+    /**
+     * Az oldal törzést generálja le a felhasználó adatai alapján.
+     *
+     * @param name felhasználó teljes neve, ami a felső sávban jelenik meg
+     * @param tableContent felhasználóhoz tartozó fav_car rekordokat tartalmazó táblázat törzse
+     * @return felület HTML törzse
+     */
     private String getHomeBody(String name, String tableContent) {
         return String.format(HOME_BODY, name, tableContent);
     }
 
+    /**
+     * Felhasználóhoz tartozó fav_car rekordokból állít össze egy sort
+     *
+     * @param favCar sorban szerepelni fogó FavCar rekord
+     * @return HTML tábláhatba tartozó sor
+     */
     private String createRow(FavCar favCar) {
         CarTypeManager ctm = new CarTypeManager(MySqlConnection.getConnection());
         CarType carType = ctm.getCarTypes().stream()
@@ -82,10 +98,17 @@ public class HomeServlet extends HttpServlet {
                 .filter(carBrand -> carBrand.id().equals(carType.carBrandId()))
                 .findFirst()
                 .get().name();
+
         String type = carType.name();
         return String.format(ROW_TEMP, brandName, type, favCar.year(), favCar.color());
     }
 
+    /**
+     * Felhasználóhoz tartozó fav_car rekordokból csinálja meg a megjelenítő táblázat törzsét.
+     *
+     * @param username felhasználót azonosító felhasználónév
+     * @return HTML táblázat törzse
+     */
     private String createTableContent(String username) {
         FavCarTableManager ftm = new FavCarTableManager(MySqlConnection.getConnection());
         if (ftm.getUserFavCars(String.valueOf(username)).isEmpty()) {
@@ -95,6 +118,7 @@ public class HomeServlet extends HttpServlet {
                                     </tr>
                 """;
         }
+
         ArrayList<FavCar> userFavCars = ftm.getUserFavCars(username);
         ArrayList<String> tableRows = new ArrayList<>();
         for (FavCar favCar : userFavCars) {
@@ -103,6 +127,12 @@ public class HomeServlet extends HttpServlet {
         return String.join("\n", tableRows);
     }
 
+    /**
+     * Visszaadja a felhasználónévhez tartozó nevet.
+     *
+     * @param username felhasználót azonosító felhasználónév
+     * @return felhasználónévhez tartozó név
+     */
     private String getUserFullName(String username) {
         UserTableManager utm = new UserTableManager(MySqlConnection.getConnection());
         return utm.getUsers().stream()
@@ -122,10 +152,12 @@ public class HomeServlet extends HttpServlet {
         ResponseComponents.setResponseHeader(response);
 
         try {
+            UserTableManager utm = new UserTableManager(MySqlConnection.getConnection());
             String username = (String) request.getSession().getAttribute("user");
+
             if (username.isEmpty()) {
                 response.sendRedirect("login");
-            } else if (!ResponseComponents.checkUserInHeader(request)) {
+            } else if (utm.getAdmins().stream().map(User::username).noneMatch(username::equals)) {
                 response.sendRedirect("login");
             }
 

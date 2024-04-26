@@ -16,9 +16,20 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+/**
+ * Felhasználó bejelentkeztetését szolgáló servlet osztály.
+ */
 @WebServlet("/login")
 public class LoginServlet extends HttpServlet {
 
+    /**
+     * Megvizsgálja a felhasználó bejelentkezési adatait, hogy azok szerepelnek-e
+     * a user táblában és nincsennek-e zárolva.
+     *
+     * @param username felhasználót azonosító felhasználónév
+     * @param password a felhasználónévhez tartozó jelszó
+     * @return visszaadja, hogy sikerült-e az authentikáció
+     */
     private boolean checkCredentials(String username, String password) {
         UserTableManager utm = new UserTableManager(MySqlConnection.getConnection());
         Map<String, String> credentials = utm.getUsers().stream()

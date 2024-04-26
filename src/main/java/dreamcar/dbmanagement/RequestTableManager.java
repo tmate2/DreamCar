@@ -8,12 +8,25 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+/**
+ * A request táblát kezelő osztály
+ */
 public class RequestTableManager extends DatabaseManager {
 
+    /**
+     * Csatlakozást biztosít a MySql szerverhez
+     *
+     * @param connection MySql kapcsolat
+     */
     public RequestTableManager(Connection connection) {
         super(connection, "request");
     }
 
+    /**
+     * Új rekordot vesz fel a request táblába
+     *
+     * @param request táblához tartozó rekord osztály
+     */
     public void addRequest(UserRequest request) {
         String sqlQuery = getInsertIntoTableQuery(TABLE, 2);
         try {
@@ -26,6 +39,11 @@ public class RequestTableManager extends DatabaseManager {
         }
     }
 
+    /**
+     * Visszaadja az összes UserRequset rekordot a request táblából
+     *
+     * @return UserRequest rekordokat tartalmazó lista
+     */
     public ArrayList<UserRequest> getRequests() {
         ArrayList<UserRequest> requests = null;
         try {
@@ -40,6 +58,11 @@ public class RequestTableManager extends DatabaseManager {
         return requests;
     }
 
+    /**
+     * Törli az adott tartalmú UserRequset rekordokat
+     *
+     * @param request törlendő kérés tartalma
+     */
     public void deleteRequest(String request) {
         String sqlQuery = String.format(DELETE_QUERY, TABLE, "request");
         try {

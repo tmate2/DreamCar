@@ -21,6 +21,9 @@ import java.util.Comparator;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+/**
+ * A car_type tábla kezelését segítő servlet osztály
+ */
 @WebServlet("/addtype")
 public class AddCarTypeServlet extends HttpServlet {
 
@@ -89,6 +92,11 @@ public class AddCarTypeServlet extends HttpServlet {
                     </script>
             """;
 
+    /**
+     * A car_type tábla tartalma alapján legenerálja a megjelenítendő táblázat törzsét.
+     *
+     * @return egy táblázat törzse a car_type tábla rekordjaival
+     */
     private String createTypeTable() {
         CarTypeManager ctm = new CarTypeManager(MySqlConnection.getConnection());
         ArrayList<CarType> carTypes = ctm.getCarTypes();
@@ -108,15 +116,6 @@ public class AddCarTypeServlet extends HttpServlet {
                 """;
         ArrayList<String> rows = new ArrayList<>();
         CarBrandManager cbm = new CarBrandManager(MySqlConnection.getConnection());
-        /*for (CarType carType : carTypes.stream()
-                .sorted((c1, c2) -> cbm.getCarBrands()
-                        .stream()
-                        .filter(cb -> cb.id().equals(c1.carBrandId()))
-                        .findFirst().get().name().compareTo(
-                                cbm.getCarBrands()
-                                        .stream()
-                                        .filter(cb2 -> cb2.id().equals(c2.carBrandId()))
-                                        .findFirst().get().name())).toList()) {*/
         for (CarType carType : carTypes) {
             String carBrandName = cbm.getCarBrands().stream()
                     .filter(carBrand -> carBrand.id().equals(carType.carBrandId()))
@@ -131,6 +130,11 @@ public class AddCarTypeServlet extends HttpServlet {
         return String.join("\n", rows);
     }
 
+    /**
+     * A car_brand tábla tartalma alapján egy dropdown menű választható részét generálja le.
+     *
+     * @return dropdown menűbe való választható elemek HTML blokkja
+     */
     private String createDropdown() {
         CarBrandManager cbm = new CarBrandManager(MySqlConnection.getConnection());
         if (cbm.getCarBrands().isEmpty()) {
@@ -138,6 +142,7 @@ public class AddCarTypeServlet extends HttpServlet {
                                                         <li>Nincs egy márka se felvéve</li>
                     """;
         }
+
         String rowSimple = """
                                                <li><input class="m-1" type="radio" id="%s" name="brandname"  value="%s" style="height: 1.6vh; width: 1.6vh;"><label for="%s" style="font-size: 1.7vh;">%s</label><br></li>
             """;
@@ -179,6 +184,7 @@ public class AddCarTypeServlet extends HttpServlet {
                         .filter(r -> r.startsWith("ctchck-"))
                         .map(r -> r.substring(7))
                         .collect(Collectors.toCollection(ArrayList::new));
+
                 CarTypeManager ctm = new CarTypeManager(MySqlConnection.getConnection());
                 typeIds.forEach(id -> ctm.deleteCarType(
                         ctm.getCarTypes().stream()
@@ -189,7 +195,7 @@ public class AddCarTypeServlet extends HttpServlet {
                     && request.getParameter("cartypename") != null) {
                 String newCarTypeName = request.getParameter("cartypename").toUpperCase();
                 String carBrandId = request.getParameter("brandname");
-                System.out.println("&&&&&&&&&&&&&&&&&&&&&&&&& "+ carBrandId + "  "+ newCarTypeName);
+
                 CarTypeManager ctm = new CarTypeManager(MySqlConnection.getConnection());
                 String newCarTypeId = DigestUtils.sha256Hex(newCarTypeName + carBrandId);
                 if (!ctm.getCarTypesIds().contains(newCarTypeId)) {

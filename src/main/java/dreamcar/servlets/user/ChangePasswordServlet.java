@@ -1,6 +1,7 @@
 package dreamcar.servlets.user;
 
 import dreamcar.dbmanagement.UserTableManager;
+import dreamcar.dbmanagement.tables.User;
 import dreamcar.servlets.ResponseComponents;
 import dreamcar.startup.connection.MySqlConnection;
 import jakarta.servlet.annotation.WebServlet;
@@ -13,6 +14,9 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Optional;
 
+/**
+ * Jelszóváltoztatást biztosító servlet osztály.
+ */
 @WebServlet("/changepassword")
 public class ChangePasswordServlet extends HttpServlet {
 
@@ -42,14 +46,21 @@ public class ChangePasswordServlet extends HttpServlet {
                     </div>
             """;
 
-    @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
-        doPost(req, resp);
-    }
 
+    /**
+     * Ellenőrzi a fehasználónévhez tartozó (régi) jelszót
+     * @param username felhasználót azonosító felasználónév
+     * @param password felhasználóhoz tartozó (régi) jelszó
+     * @return Ellenőrzés eredménye
+     */
     private boolean checkPassword(String username, String password) {
         UserTableManager utm = new UserTableManager(MySqlConnection.getConnection());
         return utm.getUserByUsername(username).password().equals(password);
+    }
+
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
+        doPost(req, resp);
     }
 
     @Override
@@ -60,24 +71,23 @@ public class ChangePasswordServlet extends HttpServlet {
         String newPassword1 = Optional.ofNullable(request.getParameter("newpassword1")).orElse("");
         String newPassword2 = Optional.ofNullable(request.getParameter("newpassword2")).orElse("");
 
-        System.out.println(password+" "+newPassword1+" "+newPassword2);
-
         String badPassword = "hidden";
         String differentPassword = "hidden";
 
+        UserTableManager utm = new UserTableManager(MySqlConnection.getConnection());
         String username = Optional.ofNullable((String) request.getSession().getAttribute("user")).orElse("");
 
         try {
             if (username.isEmpty()) {
                 response.sendRedirect("login");
-            } else if (!ResponseComponents.checkUserInHeader(request)) {
+            } else if (utm.getAdmins().stream().map(User::username).noneMatch(username::equals)) {
                 response.sendRedirect("login");
             }
+
             if (!password.isEmpty() && !newPassword1.isEmpty() && !newPassword2.isEmpty()) {
                 String hashedPassword = DigestUtils.sha256Hex(password);
                 if (checkPassword(username, hashedPassword)) {
                     if (newPassword1.equals(newPassword2)) {
-                        UserTableManager utm = new UserTableManager(MySqlConnection.getConnection());
                         utm.changePassword(
                                 utm.getUserByUsername(username)
                                 , DigestUtils.sha256Hex(newPassword1)
@@ -89,6 +99,7 @@ public class ChangePasswordServlet extends HttpServlet {
                     badPassword = "";
                 }
             }
+
             PrintWriter writer = response.getWriter();
             writer.println(ResponseComponents.getHeader("Change Password"));
             writer.println(String.format(BODY, badPassword, differentPassword));

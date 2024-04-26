@@ -9,12 +9,26 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
+/**
+ * A user táblát kezelő osztály.
+ */
 public class UserTableManager extends DatabaseManager {
 
+    /**
+     * Csatlakozást biztosít a MySql szerverhez.
+     *
+     * @param connection MySql kapcsoalt
+     */
     public UserTableManager(Connection connection) {
         super(connection, "user");
     }
 
+    /**
+     * Új User rekordot vesz fel a user táblába.
+     *
+     * @param user táblához tartozó rekord példány
+     * @return visszajelzi, hogy sikerült-e a művelet
+     */
     public boolean addUser(User user) {
         if (getUsernames().contains(user.username())) {
             return false;
@@ -35,6 +49,11 @@ public class UserTableManager extends DatabaseManager {
         return true;
     }
 
+    /**
+     * Negálja az adott User rekord is_admin értékét.
+     *
+     * @param user módosítandó User példány
+     */
     public void changeAdminStatus(User user) {
         String sqlQuery = String.format(UPDATE_QUERY, TABLE, "is_admin", "username");
         try {
@@ -47,6 +66,11 @@ public class UserTableManager extends DatabaseManager {
         }
     }
 
+    /**
+     * Negálja az adott User rekord is_active értékét.
+     *
+     * @param user módosítandó User példány
+     */
     public void changeActivityStatus(User user) {
         String sqlQuery = String.format(UPDATE_QUERY, TABLE, "is_active", "username");
         try {
@@ -59,6 +83,12 @@ public class UserTableManager extends DatabaseManager {
         }
     }
 
+    /**
+     * Módosítja az adott User rekord password mezőjét.
+     *
+     * @param user módosítandó User példány
+     * @param newPassword érték amire módosúl
+     */
     public void changePassword(User user, String newPassword) {
         String sqlQuery = String.format(UPDATE_QUERY, TABLE, "password", "username");
         try {
@@ -71,9 +101,15 @@ public class UserTableManager extends DatabaseManager {
         }
     }
 
+    /**
+     * Törli az adott User rekordot a user táblából és a hozzá tartozó rekordokat
+     * a car_pic táblából.
+     *
+     * @param user törlendő User rekord példány
+     */
     public void deleteUser(User user) {
         new FavCarTableManager(connection).deleteUsersFavCars(user);
-
+        //TODO: TÖRÖLNI A HOZZÁ TARTOZÓ REKORDOKAT A CAR_PIC TÁBLÁBÓL
         String sqlQuery = String.format(DELETE_QUERY, TABLE, "username");
         try {
             PreparedStatement pst = super.connection.prepareStatement(sqlQuery);
@@ -84,6 +120,11 @@ public class UserTableManager extends DatabaseManager {
         }
     }
 
+    /**
+     * Visszaadja az összes User objektumot ami a táblában szerepel.
+     *
+     * @return user táblából származó User lista
+     */
     public ArrayList<User> getUsers() {
         ArrayList<User> users = null;
         try {
@@ -104,6 +145,11 @@ public class UserTableManager extends DatabaseManager {
         return users;
     }
 
+    /**
+     * Visszadja a User táblából a username oszlopot.
+     *
+     * @return user tábla username oszlopából készült lista
+     */
     private ArrayList<String> getUsernames() {
         ArrayList<String> username = null;
         try {
@@ -117,12 +163,24 @@ public class UserTableManager extends DatabaseManager {
         }
         return username;
     }
+
+    /**
+     * Vissza adja a is_admin = true értékkel rendelkező User rekordokat a user táblából.
+     *
+     * @return admin jogosultságú User rekordok listája
+     */
     public ArrayList<User> getAdmins() {
         return getUsers().stream()
                 .filter(user -> user.isAdmin() && user.isActive())
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
+    /**
+     * Vissza adja a user táblóból, az adott usernamehez tartozó teljes User rekordot.
+     *
+     * @param username lekérni kívánt rekord username értéke
+     * @return usernamehez tartozó User rekord
+     */
     public User getUserByUsername(String username) {
         return getUsers().stream()
                 .filter(u -> u.username().equals(username))

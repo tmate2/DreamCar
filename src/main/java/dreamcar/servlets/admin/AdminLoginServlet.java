@@ -16,9 +16,19 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+/**
+ * Az admin felhasználók bejelentkezéséért felelős servlet osztály.
+ */
 @WebServlet("/adminlogin")
 public class AdminLoginServlet extends HttpServlet {
 
+    /**
+     * Ellenőrzi a bejelentkező enitást, hogy jogosult-e arra és megfelelőek-e a hitelesítési adatai.
+     *
+     * @param username A felhasználót azonosító felhasználónév
+     * @param password A felhasználónévhez tartozó jelszó
+     * @return Visszaadja, hogy a felhasználó jogosult-e a belépésre
+     */
     private boolean checkAdminCredentials(String username, String password) {
         UserTableManager utm = new UserTableManager(MySqlConnection.getConnection());
         Map<String, String> credentials = utm.getUsers().stream()

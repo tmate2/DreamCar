@@ -1,12 +1,10 @@
 package dreamcar.servlets.user;
 
-import dreamcar.dbmanagement.CarBrandManager;
-import dreamcar.dbmanagement.CarPicManager;
-import dreamcar.dbmanagement.CarTypeManager;
-import dreamcar.dbmanagement.FavCarTableManager;
+import dreamcar.dbmanagement.*;
 import dreamcar.dbmanagement.tables.CarPic;
 import dreamcar.dbmanagement.tables.CarType;
 import dreamcar.dbmanagement.tables.FavCar;
+import dreamcar.dbmanagement.tables.User;
 import dreamcar.servlets.ResponseComponents;
 import dreamcar.startup.connection.MySqlConnection;
 import jakarta.servlet.ServletException;
@@ -19,6 +17,9 @@ import org.apache.commons.codec.digest.DigestUtils;
 import java.io.*;
 import java.util.*;
 
+/**
+ * A fav_car táblához tartozó műveleteket biztosító servlet osztály.
+ */
 @WebServlet("/addcar")
 public class AddFavCarServlet extends HttpServlet {
 
@@ -71,6 +72,12 @@ public class AddFavCarServlet extends HttpServlet {
                     </script>
         """;
 
+    /**
+     * Legenerálja egy dropdown menűbe a car_type táblában lévő rekordok alapján, hogy miket lehet
+     * választani és hozzáadni a fav_car táblához.
+     *
+     * @return car_type rekordjait tartalmazó dropdown menű törzse
+     */
     private String createCarList() {
         CarTypeManager ctm = new CarTypeManager(MySqlConnection.getConnection());
         ArrayList<CarType> carTypes = ctm.getCarTypes();
@@ -81,16 +88,19 @@ public class AddFavCarServlet extends HttpServlet {
         }
         CarBrandManager cbm = new CarBrandManager(MySqlConnection.getConnection());
         Map<String, String> carNames = new HashMap<>();
+
         for (CarType carType : carTypes) {
             String actualCarBrandName = cbm.getCarBrands().stream()
                     .filter(carBrand -> carBrand.id().equals(carType.carBrandId()))
                     .findFirst()
                     .get().name();
+
             carNames.put(
                     actualCarBrandName + " " + carType.name()
                     , carType.id()
             );
         }
+
         String rowSample = """
                                                                 <li><input class="m-1" type="radio" id="%s" name="type" value="%s" style="height: 1.6vh; width: 1.6vh;"><label for="%s" style="font-size: 1.7vh;">%s</label><br></li>
                 """;
@@ -114,29 +124,29 @@ public class AddFavCarServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) {
         ResponseComponents.setResponseHeader(response);
+        String username = Optional.ofNullable((String) request.getSession().getAttribute("user")).orElse("");
+        UserTableManager utm = new UserTableManager(MySqlConnection.getConnection());
 
         try {
+            if (username.isEmpty()) {
+                response.sendRedirect("login");
+            } else if (utm.getAdmins().stream().map(User::username).noneMatch(username::equals)) {
+                response.sendRedirect("login");
+            }
+
             String emptyFields = "hidden";
             String isEnable = "hidden";
-
-            String username = request.getSession().getAttribute("user").toString();
 
             if (request.getParameter("adding") != null) {
                 String type = Optional.ofNullable(request.getParameter("type")).orElse("");
                 String year = Optional.ofNullable(request.getParameter("year")).orElse("");
                 String color = Optional.ofNullable(request.getParameter("color")).orElse("");
                 String fuel = Optional.ofNullable(request.getParameter("fuel")).orElse("");
-                System.out.println("############");
-                System.out.println(type);
-                System.out.println(year);
-                System.out.println(color);
-                System.out.println(fuel);
-                System.out.println("############");
-                String newFavCarId = DigestUtils.sha256Hex(type + year);
+
                 if (!type.isEmpty() && !year.isEmpty() && !color.isEmpty() && !fuel.isEmpty()) {
+                    String newFavCarId = DigestUtils.sha256Hex(type + year);
                     FavCarTableManager fctm = new FavCarTableManager(MySqlConnection.getConnection());
-                    if (!fctm.getUserFavCars(username)
-                            .stream()
+                    if (!fctm.getUserFavCars(username).stream()
                             .map(FavCar::id)
                             .toList()
                             .contains(newFavCarId)) {
