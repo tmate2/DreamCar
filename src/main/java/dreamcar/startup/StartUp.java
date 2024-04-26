@@ -21,7 +21,6 @@ public class StartUp implements ServletContextListener {
         MySqlConnection.connectToServer();
 
         connectionFailed = (MySqlConnection.getConnection() == null);
-        //TODO: leállítani a futást
     }
 
     /**

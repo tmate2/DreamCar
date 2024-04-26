@@ -17,6 +17,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Optional;
 
 /**
  * Felhasználói főoldalt biztosító servlet osztály.
@@ -152,8 +153,8 @@ public class HomeServlet extends HttpServlet {
         ResponseComponents.setResponseHeader(response);
 
         try {
+            String username = Optional.ofNullable((String) request.getSession().getAttribute("user")).orElse("");
             UserTableManager utm = new UserTableManager(MySqlConnection.getConnection());
-            String username = (String) request.getSession().getAttribute("user");
 
             if (username.isEmpty()) {
                 response.sendRedirect("login");

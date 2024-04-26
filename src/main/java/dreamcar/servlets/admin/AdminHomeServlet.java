@@ -225,10 +225,10 @@ public class AdminHomeServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) {
         ResponseComponents.setResponseHeader(response);
 
-        try {
-            UserTableManager utm = new UserTableManager(MySqlConnection.getConnection());
-            String username = Optional.ofNullable((String) request.getSession().getAttribute("admin")).orElse("");
+        UserTableManager utm = new UserTableManager(MySqlConnection.getConnection());
+        String username = Optional.ofNullable((String) request.getSession().getAttribute("admin")).orElse("");
 
+        try {
             if (username.isEmpty()) {
                 response.sendRedirect("adminlogin");
             } else if (utm.getAdmins().stream().map(User::username).noneMatch(username::equals)) {

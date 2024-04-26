@@ -149,8 +149,6 @@ public class AddFavCarServlet extends HttpServlet {
                             .map(FavCar::id)
                             .toList()
                             .contains(newFavCarId)) {
-                        System.out.println(type);
-                        System.out.println(username + type + year);
                         fctm.addFavCar(new FavCar(
                                 newFavCarId
                                 , type
