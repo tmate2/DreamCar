@@ -27,6 +27,11 @@ public class MySqlConnection {
      */
     public static void connectToServer() {
         try {
+            /*
+             * A ../webapps/ és /WEB-INF/... közöti résznek meg kell egyeznie a .war fájl nevével.
+             * (azaz, verzióváltásnál át kell írni...)
+             *
+             */
             File config = new File("../webapps/DreamCar-1.0/WEB-INF/properties.conf");
 
             if (config.exists() && config.canRead()) {

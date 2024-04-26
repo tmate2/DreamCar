@@ -58,15 +58,13 @@ public class SendRequestServlet extends HttpServlet {
         try {
             if (username.isEmpty()) {
                 response.sendRedirect("login");
-            } else if (utm.getAdmins().stream().map(User::username).noneMatch(username::equals)) {
+            } else if (utm.getUsers().stream().filter(User::isActive).map(User::username).noneMatch(username::equals)) {
                 response.sendRedirect("login");
             }
 
             String userRequest = Optional.ofNullable(request.getParameter("request")).orElse("");
 
             if (!userRequest.isEmpty()) {
-                System.out.println("username: " + username);
-                System.out.println("request: " + userRequest);
                 RequestTableManager rtm = new RequestTableManager(MySqlConnection.getConnection());
                 rtm.addRequest(new UserRequest(userRequest, username));
                 response.sendRedirect("addcar");

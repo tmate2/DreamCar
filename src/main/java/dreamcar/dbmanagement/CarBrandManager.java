@@ -10,12 +10,12 @@ import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 /**
- * A car_brand táblát kezelő osztály
+ * A car_brand táblát kezelő osztály.
  */
 public class CarBrandManager extends DatabaseManager {
 
     /**
-     * Csatlakozik a MySQL szerverhez
+     * Csatlakozik a MySQL szerverhez.
      *
      * @param connection MySQL kapcsolat
      */
@@ -24,7 +24,7 @@ public class CarBrandManager extends DatabaseManager {
     }
 
     /**
-     * Új rekordot vesz fel a car_brand táblába
+     * Új rekordot vesz fel a car_brand táblába.
      *
      * @param carBrand táblához tartozó rekord osztály
      * @return visszajelzi, hogy sikerült-e a művelet
@@ -47,7 +47,7 @@ public class CarBrandManager extends DatabaseManager {
     }
 
     /**
-     * A car_brand tábla id oszlopát adja vissza
+     * A car_brand tábla id oszlopát adja vissza.
      *
      * @return car_brand id-k listája
      */
@@ -58,7 +58,7 @@ public class CarBrandManager extends DatabaseManager {
     }
 
     /**
-     * car_brand name oszlopát adja vissza
+     * car_brand name oszlopát adja vissza.
      *
      * @return car_brand-ben szereplő márkák listája
      */
@@ -69,7 +69,7 @@ public class CarBrandManager extends DatabaseManager {
     }
 
     /**
-     * Visszaadja az össze CarBrand objektumot ami a táblában szerepel
+     * Visszaadja az össze CarBrand objektumot ami a táblában szerepel.
      *
      * @return car_brand táblából származó CarBrand lista
      */

@@ -79,9 +79,14 @@ public class FavCarTableManager extends DatabaseManager {
      */
     public void deleteUsersFavCars(User user) {
         //Megjegyzés: ez a car_pic táblából is törli ezeket
-        getUserFavCars(user.username())
-                .forEach(this::deleteFavCar);
+        CarPicManager cpm = new CarPicManager(connection);
 
+        getUserFavCars(user.username())
+                .forEach(fv -> {
+                    cpm.deleteCarPicByFavCarId(fv.id());
+                    this.deleteFavCar(fv);
+                });
+/*
         try {
             String sqlQuery = String.format(DELETE_QUERY, TABLE, "user_id");
             PreparedStatement pst = connection.prepareStatement(sqlQuery);
@@ -89,7 +94,7 @@ public class FavCarTableManager extends DatabaseManager {
             pst.execute();
         } catch (SQLException e) {
             System.out.println(""+e);
-        }
+        }*/
     }
 
     /**

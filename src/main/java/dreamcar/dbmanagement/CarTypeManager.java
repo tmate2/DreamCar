@@ -50,7 +50,7 @@ public class CarTypeManager extends DatabaseManager {
     }
 
     /**
-     * A car_type tábla id oszlopát adja vissza
+     * A car_type tábla id oszlopát adja vissza.
      *
      * @return car_type id-k listája
      */
@@ -61,7 +61,7 @@ public class CarTypeManager extends DatabaseManager {
     }
 
     /**
-     * Visszaadja az össze CarType objektumot ami a táblában szerepel
+     * Visszaadja az össze CarType objektumot ami a táblában szerepel.
      *
      * @return car_type táblából származó CarType lista
      */
@@ -89,7 +89,7 @@ public class CarTypeManager extends DatabaseManager {
             pst.setString(1, what);
             pst.execute();
         } catch (SQLException e) {
-            System.out.println(""+e);
+            System.out.println("delete"+e);
         }
     }
 
@@ -100,21 +100,25 @@ public class CarTypeManager extends DatabaseManager {
      * @param carType törlendő CarType rekord
      */
     public void deleteCarType(CarType carType) {
-        deleteCarTypesFromFavCar(carType);
         delete("id", carType.id());
+        deleteCarTypesFromFavCar(carType);
     }
 
     /**
-     * Törli az adott CarBrand-hez tartozó car_type rekordokat
+     * Törli az adott CarBrand-hez tartozó car_type rekordokat.
      *
      * @param carBrand törlendő típusok márkái
      */
     public void deleteCarBrandsTypes(CarBrand carBrand) {
+        this.getCarTypes().stream()
+                .filter(carType -> carType.carBrandId().equals(carBrand.id()))
+                .toList()
+                .forEach(this::deleteCarType);
         delete("car_brand", carBrand.id());
     }
 
     /**
-     * Törli a megadott CarType példányokat a fav_car táblából
+     * Törli a megadott CarType példányokat a fav_car táblából.
      *
      * @param carType törlendő típus
      */
@@ -122,7 +126,6 @@ public class CarTypeManager extends DatabaseManager {
         FavCarTableManager ftm = new FavCarTableManager(connection);
         for (FavCar favCar : ftm.getFavCars()) {
             if (favCar.carTypeId().equals(carType.id())) {
-                // Alkotói megjegyzés: ez törli majd a car_pic táblából is
                 ftm.deleteFavCar(favCar);
             }
         }

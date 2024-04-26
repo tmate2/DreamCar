@@ -35,6 +35,7 @@ public class LoginServlet extends HttpServlet {
         Map<String, String> credentials = utm.getUsers().stream()
                 .filter(User::isActive)
                 .collect(Collectors.toMap(User::username, User::password));
+        System.out.println(credentials.containsKey(username) && credentials.get(username).equals(password));
         return credentials.containsKey(username) && credentials.get(username).equals(password);
     }
 

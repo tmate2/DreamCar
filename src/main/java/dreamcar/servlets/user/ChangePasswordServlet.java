@@ -35,7 +35,9 @@ public class ChangePasswordServlet extends HttpServlet {
                                         <label for="newpassword1">Új jelszó:</label><br>
                                         <input type="password" class="rounded-2" name="newpassword1" placeholder="********"> <br><br>
                                         <label for="password">Új jelszó megint:</label><br>
-                                        <input type="password" class="rounded-2" name="newpassword2" placeholder="********"> <br><br>
+                                        <input type="password" class="rounded-2" name="newpassword2" placeholder="********"> <br>
+                                        <p class="%s">Min 8 karakter legyen és tartalmazzon, kis és nagybetűt, számot és speciális karaktert!</p>
+                                        <br>
                                         <p class="text-danger" %s>A két új jelszó nem egyezik</p><br>
                                         <button type="submit" class="btn btn-info m-3 rounded-4" style="font-size: 2vh" form="jelszocsere">Csere</button><br>
                                         <button type="button" class="btn btn-danger rounded-4" style="font-size: 2vh" onclick="location.href = 'home'">Mégse</button>
@@ -58,6 +60,20 @@ public class ChangePasswordServlet extends HttpServlet {
         return utm.getUserByUsername(username).password().equals(password);
     }
 
+    /**
+     * Megvizsgálja az új jelszót, hogy megfelel-e az alábbi követelményeknek:
+     *  - minimum 8 karakter
+     *  - tartalmazzon legalább egy kis és egy nagy betűt
+     *  - tartalmazzon legalább egy számot
+     *  - tartalmazzon legalább egy speciális karaktert
+     *
+     * @param password vizsgálandó jelszó
+     * @return megfelelés eredménye
+     */
+    private boolean checkPasswordIsValid(String password) {
+        return password.matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()\\-_=+{};:,.<>?])(?=.{8,})\\S+$");
+    }
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
         doPost(req, resp);
@@ -71,6 +87,7 @@ public class ChangePasswordServlet extends HttpServlet {
         String newPassword1 = Optional.ofNullable(request.getParameter("newpassword1")).orElse("");
         String newPassword2 = Optional.ofNullable(request.getParameter("newpassword2")).orElse("");
 
+        String validPassword = "text-info";
         String badPassword = "hidden";
         String differentPassword = "hidden";
 
@@ -80,21 +97,24 @@ public class ChangePasswordServlet extends HttpServlet {
         try {
             if (username.isEmpty()) {
                 response.sendRedirect("login");
-            } else if (utm.getAdmins().stream().map(User::username).noneMatch(username::equals)) {
+            } else if (utm.getUsers().stream().filter(User::isActive).map(User::username).noneMatch(username::equals)) {
                 response.sendRedirect("login");
             }
 
             if (!password.isEmpty() && !newPassword1.isEmpty() && !newPassword2.isEmpty()) {
                 String hashedPassword = DigestUtils.sha256Hex(password);
                 if (checkPassword(username, hashedPassword)) {
-                    if (newPassword1.equals(newPassword2)) {
+                    if (!checkPasswordIsValid(newPassword1)) {
+                        validPassword = "text-danger";
+                    } else if (newPassword1.equals(newPassword2)) {
                         utm.changePassword(
                                 utm.getUserByUsername(username)
                                 , DigestUtils.sha256Hex(newPassword1)
                         );
                         response.sendRedirect("home");
+                    } else {
+                        differentPassword = "";
                     }
-                    differentPassword = "";
                 } else {
                     badPassword = "";
                 }
@@ -102,7 +122,7 @@ public class ChangePasswordServlet extends HttpServlet {
 
             PrintWriter writer = response.getWriter();
             writer.println(ResponseComponents.getHeader("Change Password"));
-            writer.println(String.format(BODY, badPassword, differentPassword));
+            writer.println(String.format(BODY, badPassword, validPassword, differentPassword));
             writer.println(ResponseComponents.getFooter());
             writer.close();
         } catch (IOException e) {

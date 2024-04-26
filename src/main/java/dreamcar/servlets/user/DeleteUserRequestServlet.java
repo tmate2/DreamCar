@@ -70,7 +70,7 @@ public class DeleteUserRequestServlet extends HttpServlet {
 
             if (username.isEmpty()) {
                 response.sendRedirect("login");
-            } else if (utm.getAdmins().stream().map(User::username).noneMatch(username::equals)) {
+            } else if (utm.getUsers().stream().filter(User::isActive).map(User::username).noneMatch(username::equals)) {
                 response.sendRedirect("login");
             }
             String hidden = "hidden";

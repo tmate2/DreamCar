@@ -7,7 +7,6 @@ import dreamcar.dbmanagement.tables.FavCar;
 import dreamcar.dbmanagement.tables.User;
 import dreamcar.servlets.ResponseComponents;
 import dreamcar.startup.connection.MySqlConnection;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -130,7 +129,7 @@ public class AddFavCarServlet extends HttpServlet {
         try {
             if (username.isEmpty()) {
                 response.sendRedirect("login");
-            } else if (utm.getAdmins().stream().map(User::username).noneMatch(username::equals)) {
+            } else if (utm.getUsers().stream().filter(User::isActive).map(User::username).noneMatch(username::equals)) {
                 response.sendRedirect("login");
             }
 
@@ -144,12 +143,14 @@ public class AddFavCarServlet extends HttpServlet {
                 String fuel = Optional.ofNullable(request.getParameter("fuel")).orElse("");
 
                 if (!type.isEmpty() && !year.isEmpty() && !color.isEmpty() && !fuel.isEmpty()) {
-                    String newFavCarId = DigestUtils.sha256Hex(type + year);
+                    String newFavCarId = DigestUtils.sha256Hex(username + type + year);
                     FavCarTableManager fctm = new FavCarTableManager(MySqlConnection.getConnection());
                     if (!fctm.getUserFavCars(username).stream()
                             .map(FavCar::id)
                             .toList()
                             .contains(newFavCarId)) {
+                        System.out.println(type);
+                        System.out.println(username + type + year);
                         fctm.addFavCar(new FavCar(
                                 newFavCarId
                                 , type

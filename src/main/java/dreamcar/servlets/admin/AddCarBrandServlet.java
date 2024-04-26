@@ -21,7 +21,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
- * A car_brand tábla kezelését segítő servlet osztály
+ * A car_brand tábla kezelését segítő servlet osztály.
  */
 @WebServlet("/addbrand")
 public class AddCarBrandServlet extends HttpServlet {

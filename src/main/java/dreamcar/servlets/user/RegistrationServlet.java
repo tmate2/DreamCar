@@ -43,7 +43,9 @@ public class RegistrationServlet extends HttpServlet {
                                         <br>
                 
                                         <label for="password2">Jelszó:</label><br>
-                                        <input class="rounded-3 border border-primary" type="password" name="password1" placeholder="********"> <br><br>
+                                        <input class="rounded-3 border border-primary" type="password" name="password1" placeholder="********"> <br>
+                                        <p class="%s">Min 8 karakter legyen és tartalmazzon, kis és nagybetűt, számot és speciális karaktert!</p>
+                                        <br>
                 
                                         <label for="password2">Jelszó még egyszer:</label><br>
                                         <input class="rounded-3 border border-primary" type="password" name="password2" placeholder="********"> <br>
@@ -59,6 +61,20 @@ public class RegistrationServlet extends HttpServlet {
                 """;
 
     /**
+     * Megvizsgálja a jelszót, hogy megfelel-e az alábbi követelményeknek:
+     *  - minimum 8 karakter
+     *  - tartalmazzon legalább egy kis és egy nagy betűt
+     *  - tartalmazzon legalább egy számot
+     *  - tartalmazzon legalább egy speciális karaktert
+     *
+     * @param password vizsgálandó jelszó
+     * @return megfelelés eredménye
+     */
+    private boolean checkPasswordIsValid(String password) {
+        return password.matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()\\-_=+{};:,.<>?])(?=.{8,})\\S+$");
+    }
+
+    /**
      * Megvizsgálja a felhasználónevet, hogy megfelel-e a követelményeknek.
      *
      * @param username vizsgálandó felhasználónév
@@ -71,7 +87,7 @@ public class RegistrationServlet extends HttpServlet {
     /**
      * Ellenőrzi, hogy az adott felhasználónév szerepel-e már a user táblában.
      *
-     * @param username
+     * @param username elenőrizendő felhasználónév
      * @return visszaadja, hogy van-e már ilyen felhasználónév a user táblában
      */
     private boolean checkUsernameIsExist(String username) {
@@ -91,6 +107,7 @@ public class RegistrationServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) {
         String reservedUsername = "hidden";
         String badUsername = "hidden";
+        String badPassword = "text-info";
         String differentPasswords = "hidden";
         String emptyFields = "hidden";
         boolean everythingOk = true;
@@ -112,6 +129,9 @@ public class RegistrationServlet extends HttpServlet {
             } else if (!checkUsernameIsValid(username)) {
                 badUsername = "";
                 everythingOk = false;
+            } else if (!checkPasswordIsValid(password1)) {
+                badPassword = "text-danger";
+                everythingOk = false;
             } else if (checkUsernameIsExist(username)) {
                 reservedUsername = "";
                 everythingOk = false;
@@ -130,7 +150,7 @@ public class RegistrationServlet extends HttpServlet {
                 response.sendRedirect("login");
             }
 
-            writer.println(String.format(REG_FORM, reservedUsername, badUsername, differentPasswords, emptyFields));
+            writer.println(String.format(REG_FORM, reservedUsername, badUsername, badPassword, differentPasswords, emptyFields));
             writer.println(ResponseComponents.getFooter());
 
             writer.close();
