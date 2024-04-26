@@ -12,6 +12,7 @@ Egy Jakarta EE Servleteken alapuló egyszerű web alkalmazás, ahol a felhaszná
 (Ha a követelményekben felsoroltak már telepítve vannak.)
 #### 1. Lépés: Adatbázis szerver
  - Hozzuk létre a MySQL adatbázist és a hozzátartozó táblákat a `adatbazis_minta.sql` alapján.
+<br>Az adatbázishoz tartozó ábra: `sqldiagram.png`
 
 #### 2. Lépés: Konfigurálás
  - Az `src/main/WEB-INF/properties.conf` állományban állítsuk be a szükséges paramétereket az adatbázis szerverhez való csatlakozáshoz.
